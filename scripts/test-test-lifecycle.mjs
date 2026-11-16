@@ -54,6 +54,7 @@ function mountTest(store, pushResult = () => undefined) {
   const compiled = ts.transpileModule(script.content, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const module = { exports: {} };
   const dependencies = { vue, 'vue-router': { useRouter: () => router }, '../stores/testStore': { useTestStore: () => store },
+    '../assets/ads/ahui-poster.webp': '/ahui-poster.webp',
     '../core/questionMeme': { createQuestionNotes },
     '../assets/mascotAssets': { mascotAssets: {} }, '../components/LoadingBarrage.vue': { render: () => null },
     echarts: { init: () => chart }, 'echarts-liquidfill': {} };

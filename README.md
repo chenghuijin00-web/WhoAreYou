@@ -33,6 +33,10 @@ Cloudflare构建输出到`dist-cloudflare`，根路径部署；`npm run build`�
 
 不提交依赖目录、构建产物、环境密钥或Cloudflare登录凭据。原代码许可证不等于图片、角色或二维码素材的额外授权，发布者须确认相应使用权限。
 
+## 本项目协作命令
+
+在奶蛙项目的Codex对话中发送`/push`：检查和测试改动 → 提交并推送到本仓库`main` → 部署Cloudflare → 核对线上版本。仅适用于本项目，具体边界见[AGENTS.md](./AGENTS.md)。这不是终端命令，也不会在未发送指令时后台自动发布。
+
 ---
 
 # 原项目：PMD - Personality Model Distillation System

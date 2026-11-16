@@ -11,6 +11,7 @@ import { createQuestionNotes } from '../src/core/questionMeme.ts';
 import reviews from '../src/instance/naifrog-abstract-reviews.json' with { type: 'json' };
 
 const source = fs.readFileSync(new URL('../src/views/Test.vue', import.meta.url), 'utf8');
+const ahuiPosterUrl = 'data:image/webp;base64,' + fs.readFileSync(new URL('../src/assets/ads/ahui-poster.webp', import.meta.url)).toString('base64');
 const home = fs.readFileSync(new URL('../src/views/Home.vue', import.meta.url), 'utf8');
 assert.doesNotMatch(home, /<span class="nursery-badge">纯种奶蛙鉴赏/);
 assert.match(home, /class="official-site-link" href="https:\/\/oddtwin\.fun\/">跳转官网<\/a>/);
@@ -30,7 +31,7 @@ const loadingCompiled = ts.transpileModule(script.content.replace('const showDis
 const readyCompiled = ts.transpileModule(script.content.replace('const showDistillation = ref(false);', 'const showDistillation = ref(true);')
   .replace('const isResultReady = ref(false);', 'const isResultReady = ref(true);'),
   { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-export const questionStyles = descriptor.styles.map(style => style.content).join('\n');
+export const questionStyles = descriptor.styles.map(style => style.content).join('\n').replace(/:deep\(([^)]+)\)/g, '$1');
 
 /** 用实际问卷和组件生成测试HTML；不启动网络服务、不运行页面交互或改变答案。 */
 export async function renderQuestion(question, index = 0, { loading = false, ready = false } = {}) {
@@ -38,6 +39,7 @@ export async function renderQuestion(question, index = 0, { loading = false, rea
     totalQuestions: test.questions.length, progress: 0, currentTheme: test, isTestStarted: true, answers: {} };
   const pixel = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
   const dependencies = { vue, echarts: {}, 'echarts-liquidfill': {},
+    '../assets/ads/ahui-poster.webp': ahuiPosterUrl,
     '../core/questionMeme': { createQuestionNotes },
     '../components/LoadingBarrage.vue': LoadingBarrage,
     'vue-router': { useRouter: () => ({ push() {}, replace() {} }) },

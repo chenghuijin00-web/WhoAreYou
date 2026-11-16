@@ -4,9 +4,12 @@ import { naifrogTest } from '../src/instance/naifrogTest.ts';
 
 const html = await renderQuestion(naifrogTest.questions.at(-1), naifrogTest.questions.length, { loading: true });
 assert.match(html, /class="distill-ads-title">广告位招租中/);
-assert.equal((html.match(/class="distill-ad-placeholder"/g) ?? []).length, 4);
-assert.equal((html.match(/class="distill-ad-copy">虚位等待\.\./g) ?? []).length, 4);
-for (let slot = 1; slot <= 4; slot++) assert.ok(html.includes(`待出租广告位 ${slot}`));
+assert.equal((html.match(/class="distill-ad-placeholder(?: distill-ad-filled)?"/g) ?? []).length, 4);
+assert.equal((html.match(/class="distill-ad-copy">虚位等待\.\./g) ?? []).length, 3);
+for (let slot = 2; slot <= 4; slot++) assert.ok(html.includes(`待出租广告位 ${slot}`));
+assert.ok(html.includes('aria-label="Ahui：牛逼 强 酷 有文化 屌"'));
+assert.equal((html.match(/class="distill-ad-image"/g) ?? []).length, 1);
+assert.match(html, /width="1200" height="900"/);
 assert.ok(html.indexOf('class="distill-ads"') < html.indexOf('class="loading-barrage"'));
 assert.ok(html.indexOf('class="loading-barrage"') < html.indexOf('class="distill-heading"'));
 assert.doesNotMatch(html, /flask-wrapper|liquid-chart|bubble-particle|steam-particle/);

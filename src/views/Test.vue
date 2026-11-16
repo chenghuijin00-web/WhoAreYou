@@ -132,8 +132,9 @@
             <section class="distill-ads" aria-labelledby="distill-ads-title">
               <h2 id="distill-ads-title" class="distill-ads-title">广告位招租中</h2>
               <div class="distill-ad-grid">
-                <div v-for="slot in 4" :key="slot" class="distill-ad-placeholder" role="img" :aria-label="`待出租广告位 ${slot}，虚位等待`">
-                  <span class="distill-ad-copy">虚位等待..</span>
+                <div v-for="slot in 4" :key="slot" class="distill-ad-placeholder" :class="{ 'distill-ad-filled': slot === 1 }" role="img" :aria-label="slot === 1 ? 'Ahui：牛逼 强 酷 有文化 屌' : `待出租广告位 ${slot}，虚位等待`">
+                  <img v-if="slot === 1" class="distill-ad-image" :src="ahuiPoster" alt="" width="1200" height="900" decoding="async" />
+                  <span v-else class="distill-ad-copy">虚位等待..</span>
                 </div>
               </div>
             </section>
@@ -154,6 +155,7 @@
 
 <script setup lang="ts">
 import { mascotAssets } from '../assets/mascotAssets';
+import ahuiPoster from '../assets/ads/ahui-poster.webp';
 import LoadingBarrage from '../components/LoadingBarrage.vue';
 import { createQuestionNotes } from '../core/questionMeme';
 import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
@@ -762,6 +764,8 @@ onMounted(() => {
   font-weight: 500;
   letter-spacing: 0.12em;
 }
+.distill-ad-filled { border-style: solid; border-color: #d8bd62; overflow: hidden; }
+.distill-ad-image { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; }
 
 .distill-heading {
   font-size: clamp(1.15rem, 3.6vw, 1.65rem);
@@ -882,5 +886,6 @@ onMounted(() => {
   .distill-ads { margin-bottom: 1rem; }
   .distill-ad-placeholder { min-height: 44px; }
   .distill-heading { margin-bottom: 0.35rem; }
+  .distill-content :deep(.barrage-stage) { height: 210px; }
 }
 </style>
