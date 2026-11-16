@@ -9,6 +9,13 @@ lerna-debug.log*
 
 node_modules
 dist
+dist-cloudflare
+.wrangler
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example
 dist-ssr
 *.local
 

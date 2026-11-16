@@ -1,0 +1,18 @@
+[
+  { "code": "INTJ", "name": "奶马", "source": "47f1cec5-08bc-4c68-9d9c-79328dce6cb6.png", "generated": "exec-928bb0f0-8722-4fbb-9131-adb4d0b817e7.png" },
+  { "code": "INTP", "name": "Dr.奶", "source": "072d517a-d443-4cfb-aa15-35596b111028.png", "generated": "exec-c833d565-cd00-4f45-bd0f-6a394d2829ff.png" },
+  { "code": "ENTJ", "name": "蛙猛先生", "source": "27bfeec0eba865faa711920f9e9bd6b5.jpg", "generated": "exec-1df3a4f6-39f0-4f99-a45b-390673ac6e74.png" },
+  { "code": "ENTP", "name": "蛙哈哈", "source": "fea438c7-a548-45a1-82f5-475221736695.png", "generated": "", "cutout": "docs/persona-cutouts-v2/entp.png" },
+  { "code": "INFJ", "name": "奶蛋", "source": "image 8.png", "generated": "", "cutout": "docs/persona-cutouts-v2/infj.png" },
+  { "code": "INFP", "name": "奶蝶", "source": "44089413c5fb9d453e0b2769abdd159a.png", "generated": "", "cutout": "docs/persona-cutouts-v2/infp.png" },
+  { "code": "ENFJ", "name": "奶使", "source": "image 5.png", "generated": "exec-0fd1848b-f06a-41e7-a618-6557c925bf27.png" },
+  { "code": "ENFP", "name": "奶狗", "source": "image 4.png", "generated": "exec-aced6fc8-f387-4292-98cd-06a1360d75e7.png" },
+  { "code": "ISTJ", "name": "奶sir", "source": "image 3.png", "generated": "exec-edb81db7-f6dc-4f0e-94e9-1eae51563893.png" },
+  { "code": "ISFJ", "name": "豆奶", "source": "image 6.png", "generated": "exec-b388e459-f514-40ef-99e1-00850d7e4b60.png" },
+  { "code": "ESTJ", "name": "奶坤", "source": "image 2.png", "generated": "", "cutout": "docs/persona-cutouts-v2/estj.png" },
+  { "code": "ESFJ", "name": "蛙祖", "source": "744418623566eec920f867f160dc0f78.jpg", "generated": "", "cutout": "docs/persona-cutouts-v2/esfj.png" },
+  { "code": "ISTP", "name": "奶工", "source": "68820fab-586c-4a75-b876-bddf27a77b71.png", "generated": "exec-395354e9-eda0-4212-a67b-c8526b8d85d7.png" },
+  { "code": "ISFP", "name": "忧郁蛙", "source": "image 1.png", "generated": "", "cutout": "docs/persona-cutouts-v2/isfp.png" },
+  { "code": "ESTP", "name": "奶豪", "source": "247f38a15af2d89661b728b148f28d0f.jpg", "generated": "exec-f618f955-be64-41cc-9525-8a9a50a1232a.png" },
+  { "code": "ESFP", "name": "魅魔蛙", "source": "image.png", "generated": "exec-c2ee4214-d8f3-4279-9848-1ab9013a93f0.png" }
+]

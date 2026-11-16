@@ -1,0 +1,81 @@
+/* 只作用于首页，离开首页后答题/结果页恢复原本的滚动行为。 */
+html:has(.home-fullscreen), body:has(.home-fullscreen) { overflow: hidden; }
+#app:has(.home-fullscreen) { min-height: 0; }
+#app .home-fullscreen { position: fixed; inset: 0; width: 100%; height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; background: #fffdf6; }
+#app .home-fullscreen .hero {
+  --face-size: min(126vw, 80vh);
+  --face-top: calc(95vh - var(--face-size) * .92);
+  --face-center: 50vw;
+  position: relative; display: block; width: 100%; height: 100%; min-height: 0; max-width: none;
+  margin: 0; padding: 0; overflow: hidden; border-radius: 0; background: #fffdf6;
+}
+@supports (height: 100dvh) {
+  #app .home-fullscreen .hero { --face-size: min(126vw, 80dvh); --face-top: calc(95dvh - var(--face-size) * .92); }
+}
+/* 背景层和舌头层使用同一组几何参数，防止跨断点后嘴巴与脸错位。 */
+#app .home-fullscreen .mascot-frame {
+  width: var(--face-size); height: var(--face-size); top: var(--face-top);
+  left: calc(var(--face-center) - var(--face-size) * .5); right: auto; transform: none;
+}
+#app .home-fullscreen .yellow-hero-copy { position: absolute; top: 5%; left: 0; width: 100%; text-align: center; padding: 0 16px; }
+#app .home-fullscreen .title { font-size: clamp(36px, min(11vw, 10vh), 72px); line-height: 1.1; letter-spacing: -.04em; margin: 14px 0; }
+#app .home-fullscreen .english-brand { font-size: clamp(14px, 3.8vw, 20px); line-height: 1.5; margin: 0; }
+#app .home-fullscreen .nursery-badge { padding: 7px 16px; font-size: clamp(11px, 2.9vw, 14px); }
+#app .home-fullscreen .hero-slogan { width: 9em; max-width: 100%; margin: 16px auto 0; font-size: clamp(11px, 3vw, 14px); line-height: 1.85; color: #5a513e; letter-spacing: 0; }
+#app .home-fullscreen .hero-slogan span, #app .home-fullscreen .hero-slogan span + span { white-space: nowrap; text-indent: 0; }
+#app .home-fullscreen .hero-links { position: absolute; z-index: 3; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); display: flex; align-items: flex-start; gap: 8px; }
+#app .home-fullscreen .hero-links > a { position: static; display: inline-flex; align-items: center; min-height: 36px; padding: 0 6px; color: #69531a; font-size: 12px; text-decoration: none; white-space: nowrap; }
+#app .home-fullscreen .hero-links > a:hover { text-decoration: underline; text-underline-offset: 4px; }
+#app .home-fullscreen .hero-links > a:focus-visible { outline: 2px solid #9a7921; outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 480px) {
+  #app .home-fullscreen .hero-links { flex-direction: column; gap: 0; }
+  #app .home-fullscreen .hero-links > a { min-height: 32px; }
+}
+/* 缩短下缘淡出，让暖黄延伸到舌尖附近，不移动眼睛或按钮。 */
+#app .home-fullscreen .mascot-face-frame { mask-image: linear-gradient(#000 0%, #000 80%, transparent 100%); }
+#app .home-fullscreen .mascot-blend { background: linear-gradient(180deg, #fffdf6 0%, #fffdf6cc 17%, transparent 34%, transparent 89%, #fff5df99 100%); }
+#app .home-fullscreen .mascot-fallback { top: auto; bottom: max(7%, env(safe-area-inset-bottom)); right: 50%; transform: translateX(50%); }
+/* 宽屏采用左右布局；尺寸同时受高度约束，横屏手机也能完整看到舌尖。 */
+@media (min-aspect-ratio: 6/5) {
+  #app .home-fullscreen .hero { --face-size: min(78vw, 100vh, 1120px); --face-top: calc(50vh - var(--face-size) * .48); --face-center: 72vw; }
+  #app .home-fullscreen .yellow-hero-copy { top: max(54px, 16%); left: 6%; width: 42%; padding: 0; text-align: left; }
+  #app .home-fullscreen .title { font-size: clamp(28px, min(5.6vw, 12vh), 82px); margin: 12px 0; }
+  #app .home-fullscreen .english-brand { font-size: clamp(13px, 2vw, 20px); }
+  #app .home-fullscreen .hero-slogan { width: 15em; margin: 14px 0 0; font-size: clamp(11px, 1.3vw, 15px); }
+  #app .home-fullscreen .hero-slogan span + span { text-indent: 1em; }
+  #app .home-fullscreen .mascot-blend { background: linear-gradient(90deg, #fffdf6 0%, #fffdf6f2 24%, #fffdf68c 42%, transparent 64%); }
+  #app .home-fullscreen .mascot-fallback { right: 28%; }
+  @supports (height: 100dvh) {
+    #app .home-fullscreen .hero { --face-size: min(78vw, 100dvh, 1120px); --face-top: calc(50dvh - var(--face-size) * .48); }
+  }
+}
+@media (max-height: 350px) and (min-aspect-ratio: 6/5) {
+  #app .home-fullscreen .yellow-hero-copy { top: 48px; }
+  #app .home-fullscreen .title { margin: 7px 0; }
+  #app .home-fullscreen .hero-slogan { margin-top: 8px; line-height: 1.65; }
+}
+#app .home-fullscreen .immersive-toggle {
+  position: absolute; z-index: 4; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right));
+  display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0 6px; border: 0;
+  color: #69531a; background: transparent; font: inherit; font-size: 12px; cursor: pointer;
+}
+#app .home-fullscreen .immersive-toggle:hover span { text-decoration: underline; text-underline-offset: 4px; }
+#app .home-fullscreen .immersive-toggle:focus-visible { outline: 2px solid #9a7921; border-radius: 6px; }
+#app .home-fullscreen .immersive-help { right: calc(max(12px, env(safe-area-inset-right)) + 44px); }
+#app .home-fullscreen .immersive-help-panel {
+  position: absolute; z-index: 4; top: calc(max(10px, env(safe-area-inset-top)) + 48px);
+  right: max(12px, env(safe-area-inset-right)); width: min(19rem, calc(100% - 32px));
+  padding: 12px 14px; margin: 0; border: 1px solid #ead597; border-radius: 12px;
+  background: #fffdf6; color: #69531a; font-size: 13px; line-height: 1.55; text-align: left;
+}
+#app .home-fullscreen:fullscreen { width: 100%; height: 100%; }
+#app .home-fullscreen.home-immersive .hero {
+  --face-size: min(126vw, 84vh, 1250px);
+  --face-top: calc(94% - var(--face-size) * .94);
+  --face-center: 50vw;
+  background: radial-gradient(ellipse at 50% 75%, #fff0c8, #fffdf6 72%);
+}
+@supports (height: 100dvh) {
+  #app .home-fullscreen.home-immersive .hero { --face-size: min(126vw, 84dvh, 1250px); }
+}
+#app .home-fullscreen.home-immersive .mascot-blend { background: none; }

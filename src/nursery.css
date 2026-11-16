@@ -1,0 +1,67 @@
+/* 用独立主题层覆盖原组件皮肤，保留原有布局、答题状态和计分边界。 */
+:root {
+  --milk-bg: #fff9ef;
+  --milk-paper: #fffefa;
+  --milk-ink: #55463e;
+  --milk-muted: #847267;
+  --milk-line: #e8d9c8;
+  --milk-accent: #a84c37;
+  --milk-shadow: 0 10px 30px #81614410;
+}
+#app :is(.home, .test, .result) {
+  background: radial-gradient(ellipse at 15% 8%, #ffe5d5 0, transparent 38%),
+    radial-gradient(ellipse at 90% 35%, #eaf0de 0, transparent 34%), var(--milk-bg);
+  color: var(--milk-ink);
+  font-family: 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+}
+#app .hero { padding-top: 3rem; }
+.nursery-badge { display: inline-block; padding: 6px 18px; border: 1px solid var(--milk-line); border-radius: 24px; color: var(--milk-accent); background: #fffefa; font-size: 13px; letter-spacing: 2px; }
+.nursery-mascot { font-size: 64px; margin: 16px auto 8px; line-height: 1.2; transform: rotate(-12deg); }
+#app .title { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 1px; color: var(--milk-ink); background: none; -webkit-text-fill-color: currentColor; }
+#app .subtitle { color: var(--milk-muted); font-size: 1rem; letter-spacing: 1px; line-height: 1.8; text-transform: none; }
+#app .tagline { color: var(--milk-muted); font-size: .8rem; font-style: normal; font-family: inherit; }
+#app :is(.section-title, .result-title, .q-text, .section-title-heading) { color: var(--milk-ink); }
+#app .section-title { font-size: 1.2rem; margin-bottom: 1rem; }
+#app :is(.card-glassmorphism, .question-card, .personality-glass-card, .about-content, .feature-card) {
+  background: var(--milk-paper); border: 1px solid var(--milk-line); border-radius: 30px; box-shadow: var(--milk-shadow); backdrop-filter: none;
+}
+#app .carousel-item.active .card-glassmorphism { background: var(--milk-paper); border: 2px solid #d5ac8d; box-shadow: 0 16px 38px #8161441c; }
+#app .carousel-item.active:hover .card-glassmorphism { box-shadow: 0 18px 40px #81614424; transform: translateY(-4px); }
+#app :is(.theme-name, .personality-name, .about-content h2, .percent-num, .distill-heading) { color: var(--milk-ink); background: none; -webkit-text-fill-color: currentColor; }
+#app :is(.theme-desc, .feature-card p, .personality-meme, .interpretation-text-content, .about-intro, .step-content small, .distill-subtext) { color: var(--milk-muted); }
+#app :is(.action-button, .action-btn-primary, .next-btn.active, .distill-btn.active) { background: var(--milk-accent); color: #fffefa; border-color: var(--milk-accent); border-radius: 999px; box-shadow: 0 5px 0 #813b2b; }
+#app :is(.action-button, .action-btn-primary, .next-btn.active, .distill-btn.active):hover:not(:disabled) { background: #8c3f2e; box-shadow: 0 5px 0 #713326; }
+#app :is(.nav-arrow, .back-btn, .back-home-btn, .share-btn, .action-btn-secondary, .github-link) { background: var(--milk-paper); border-color: var(--milk-line); color: var(--milk-ink); border-radius: 999px; box-shadow: none; }
+#app :is(.nav-arrow, .back-btn, .back-home-btn, .share-btn, .action-btn-secondary, .github-link):hover { background: #f4e9da; border-color: #c9a98c; color: var(--milk-ink); }
+#app .indicator-dot { background: #ddcdbb; }
+#app .indicator-dot.active { background: var(--milk-accent); box-shadow: none; }
+#app :is(.theme-icon, .theme-image) { filter: none; }
+#app .icon-pulse { border-color: #e9c7a7; }
+#app .card-reflection { display: none; }
+#app .feature-card::before { background: #dbc8a8; }
+#app :is(.algorithm-list li, .interpretation-box, .option-card) { background: #faf4e9; border-color: var(--milk-line); border-radius: 18px; }
+@media (hover: hover) and (pointer: fine) {
+  #app .option-card:hover { background: #f8ecdc; border-color: #bd8a67; box-shadow: none; }
+}
+#app .option-card.selected { background: #f8e1cf; border-color: var(--milk-accent); box-shadow: 0 0 0 2px #a84c3712; }
+#app .option-card::after { background: none; }
+#app .opt-label { background: #efe4d5; color: var(--milk-ink); border-color: var(--milk-line); border-radius: 12px; }
+#app .option-card.selected .opt-label { background: var(--milk-accent); border-color: var(--milk-accent); color: white; }
+#app .opt-check-icon { color: var(--milk-accent); }
+#app :is(.theme-tag, .q-number-badge) { background: #f5e7d3; border-color: var(--milk-line); color: var(--milk-ink); border-radius: 999px; }
+#app .q-number-badge span { color: var(--milk-accent); }
+#app .progress-bar { background: #e9ddce; height: 9px; border-radius: 10px; }
+#app .progress-fill { background: #b57c56; box-shadow: none; }
+#app :is(.progress-text, .keyboard-hint) { color: var(--milk-muted); }
+#app .disclaimer-text { color: #795a35; background: #f8efd9; border-color: #d2af78; }
+#app .distill-overlay { background: #fff9eff5; }
+#app button:focus-visible, #app a:focus-visible { outline: 3px solid #795b39; outline-offset: 5px; }
+@media (max-width: 768px) {
+  #app .hero { padding: 2rem 1.25rem .5rem; }
+  #app .subtitle { font-size: .9rem; }
+  #app .features-grid { margin-top: 2rem; }
+  #app .theme-desc { font-size: .9rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app *, #app *::before, #app *::after { animation: none !important; transition: none !important; }
+}

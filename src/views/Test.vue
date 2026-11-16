@@ -13,24 +13,36 @@
         <div class="progress-bar">
           <div class="progress-fill" :style="{ width: `${progress}%` }"></div>
         </div>
-        <span class="progress-text">{{ currentQuestionIndex + 1 }} / {{ totalQuestions }}</span>
+        <span class="progress-text">{{ Math.min(currentQuestionIndex + 1, totalQuestions) }} / {{ totalQuestions }}</span>
       </div>
 
       <div class="theme-tag">
-        <span>{{ currentThemeName }}</span>
+        <span>奶族身份确认中</span>
       </div>
+    </div>
+
+    <div class="frog-question-note">
+      <img :src="mascotAssets.curious" alt="" width="64" height="64" decoding="async" />
+      <p>{{ questionNote }}</p>
     </div>
 
     <!-- Question Card with Animation -->
     <transition 
       name="question-transition"
       mode="out-in"
+      @after-enter="isQuestionTransitioning = false"
     >
-      <div v-if="currentQuestion && !showDistillation" :key="currentQuestion.id" class="question-wrapper">
+      <div v-if="currentQuestion && !showDistillation" :key="currentQuestion.id" :data-question-id="currentQuestion.id" class="question-wrapper">
         <div class="question-card">
-          <!-- Question Number Badge -->
-          <div class="q-number-badge">
-            <span>Q{{ currentQuestionIndex + 1 }}</span>
+          <!-- 题号与场景共享同一留白区域，窄屏时标题在区域内换行。 -->
+          <div class="question-meta">
+            <div class="q-number-badge">
+              <span>Q{{ currentQuestionIndex + 1 }}</span>
+            </div>
+            <p v-if="currentQuestion.scene" class="question-scene">
+              <span class="question-scene-label">{{ currentQuestion.scene }}</span>
+              <span v-if="currentQuestion.title" class="question-scene-title">{{ currentQuestion.title }}</span>
+            </p>
           </div>
 
           <!-- Question Text -->
@@ -42,19 +54,19 @@
               v-for="(option, idx) in currentQuestion.options"
               :key="option.id"
               class="option-card"
+              :aria-pressed="selectedOption === option.id"
+              :disabled="isQuestionTransitioning || isFinishing"
               :class="{ 
                 selected: selectedOption === option.id,
                 [`stagger-${idx}`]: true
               }"
-              @click="selectOption(option.id)"
+              @click="selectOption(option.id, $event)"
             >
-              <span class="opt-label">{{ option.id.toUpperCase() }}</span>
               <span class="opt-text">{{ option.text }}</span>
               
-              <div class="opt-check-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
+              <div class="opt-check-icon" aria-hidden="true">
+                <img :src="mascotAssets.eye" alt="" width="32" height="32" draggable="false" decoding="async" />
+                <span class="opt-eye-pupil"></span>
               </div>
             </button>
           </div>
@@ -63,7 +75,7 @@
           <div class="navigation-area">
             <button
               class="nav-btn prev-btn"
-              :disabled="currentQuestionIndex === 0"
+              :disabled="currentQuestionIndex === 0 || isQuestionTransitioning || isFinishing"
               @click="goToPreviousQuestion"
               aria-label="上一题"
             >
@@ -76,7 +88,7 @@
             <button
               v-if="!isLastQuestion"
               class="nav-btn next-btn"
-              :disabled="!selectedOption"
+              :disabled="!selectedOption || isQuestionTransitioning || isFinishing"
               :class="{ active: selectedOption }"
               @click="submitAndNext"
               aria-label="下一题"
@@ -90,7 +102,7 @@
             <button
               v-else
               class="nav-btn distill-btn"
-              :disabled="!selectedOption"
+              :disabled="!selectedOption || isQuestionTransitioning || isFinishing"
               :class="{ active: selectedOption }"
               @click="startDistillation"
               aria-label="开始蒸馏"
@@ -115,44 +127,23 @@
     <!-- Distillation Animation Overlay (teleported to body for proper centering) -->
     <Teleport to="body">
       <transition name="distill-fade">
-        <div v-if="showDistillation" class="distill-overlay">
+        <div v-if="showDistillation" class="distill-overlay" role="status" aria-live="polite" :aria-label="isResultReady ? '奶蛙种族判定完成，请查看结果' : '正在判定奶蛙种族'">
           <div class="distill-content">
-            <div class="flask-wrapper">
-              <div ref="liquidChartRef" class="liquid-chart"></div>
-              
-              <svg class="flask-overlay-svg" viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg">
-                <path 
-                  d="M62,8 L62,60 L20,170 Q16,185 30,195 L130,195 Q144,185 140,170 L98,60 L98,8 Z"
-                  fill="rgba(240, 248, 255, 0.04)"
-                  stroke="rgba(199, 210, 254, 0.3)"
-                  stroke-width="0.6"
-                  stroke-linejoin="round"
-                  class="flask-outline"
-                />
-                <ellipse cx="80" cy="8" rx="22" ry="3" fill="none" stroke="rgba(199, 210, 254, 0.3)" stroke-width="0.6" />
-                <path d="M64,12 L64,54 L30,150" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-linecap="round" />
-              </svg>
-              
-              <div class="bubbles-container">
-                <div v-for="n in 18" :key="'bub-' + n" class="bubble-particle"
-                  :style="{ left: `${15 + Math.random() * 70}%`, animationDelay: `${Math.random() * 2}s`, animationDuration: `${0.8 + Math.random() * 1}s` }"></div>
+            <section class="distill-ads" aria-labelledby="distill-ads-title">
+              <h2 id="distill-ads-title" class="distill-ads-title">广告位招租中</h2>
+              <div class="distill-ad-grid">
+                <div v-for="slot in 4" :key="slot" class="distill-ad-placeholder" role="img" :aria-label="`待出租广告位 ${slot}，虚位等待`">
+                  <span class="distill-ad-copy">虚位等待..</span>
+                </div>
               </div>
-              
-              <div class="steam-container">
-                <div v-for="n in 10" :key="'stm-' + n" class="steam-particle"
-                  :style="{ left: `${25 + Math.random() * 50}%`, animationDelay: `${Math.random() * 2.5}s`, width: `${4 + Math.random() * 4}px`, height: `${4 + Math.random() * 4}px` }"></div>
-              </div>
-            </div>
-            
-            <h3 class="distill-heading">正在蒸馏你的人格...</h3>
-            <p class="distill-subtext">提取核心特征 · 分析维度分布 · 匹配人格模板</p>
-            
-            <div class="step-indicators">
-              <div v-for="(step, i) in distillSteps" :key="i" class="step-item"
-                :class="{ active: currentStep >= i, completed: currentStep > i }">
-                <span class="step-emoji">{{ step.icon }}</span>
-                <span class="step-name">{{ step.label }}</span>
-              </div>
+            </section>
+            <LoadingBarrage />
+            <div class="distill-result-action">
+              <h3 v-if="!isResultReady" class="distill-heading">正在判定奶蛙种族</h3>
+              <button v-else class="distill-result-btn" :disabled="isOpeningResult" @click="goToResult">
+                {{ isOpeningResult ? '正在打开…' : '查看结果 →' }}
+              </button>
+              <p v-if="resultOpenError" class="distill-result-error" role="alert">{{ resultOpenError }}</p>
             </div>
           </div>
         </div>
@@ -162,189 +153,95 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, watch, nextTick, onBeforeUnmount } from 'vue';
+import { mascotAssets } from '../assets/mascotAssets';
+import LoadingBarrage from '../components/LoadingBarrage.vue';
+import { createQuestionNotes } from '../core/questionMeme';
+import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTestStore } from '../stores/testStore';
-import * as echarts from 'echarts';
-import 'echarts-liquidfill';
 
 const router = useRouter();
 const testStore = useTestStore();
 
 const selectedOption = ref<string | null>(null);
+const isQuestionTransitioning = ref(false);
 const showDistillation = ref(false);
-const currentStep = ref(0);
-const liquidChartRef = ref<HTMLElement | null>(null);
-let liquidChart: echarts.ECharts | null = null;
+const isResultReady = ref(false);
+const isOpeningResult = ref(false);
+const resultOpenError = ref('');
 
 const currentQuestion = computed(() => testStore.currentQuestion);
 const currentQuestionIndex = computed(() => testStore.currentQuestionIndex);
 const isLastQuestion = computed(() => testStore.isLastQuestion);
 const progress = computed(() => testStore.progress);
 const totalQuestions = computed(() => testStore.totalQuestions);
+const questionNotes = createQuestionNotes(testStore.currentTheme?.questions.map(question => question.id) ?? []);
+const questionNote = computed(() => questionNotes[currentQuestion.value?.id ?? ''] ?? '');
 
-const currentThemeName = computed(() => {
-  const theme = testStore.currentTheme;
-  return theme?.name || '测试';
-});
+let resultTimer: ReturnType<typeof setTimeout>;
+let isFinishing = false;
+const AUTO_ADVANCE_DELAY_MS = 450;
+const RESULT_LOADING_MS = 5000;
+let autoAdvanceTimer: ReturnType<typeof setTimeout> | undefined;
+let disposed = false;
 
-const distillSteps = [
-  { icon: '📊', label: '维度分析' },
-  { icon: '🎯', label: '证据匹配' },
-  { icon: '✨', label: '人格生成' }
-];
-
-let stepTimer: ReturnType<typeof setInterval>;
-
-const initLiquidChart = () => {
-  if (!liquidChartRef.value) return;
-  
-  if (liquidChart) {
-    liquidChart.dispose();
-    liquidChart = null;
-  }
-  
-  liquidChart = echarts.init(liquidChartRef.value);
-  
-  const option = {
-    series: [{
-      type: 'liquidFill',
-      radius: '78%',
-      center: ['50%', '50%'],
-      data: [0, 0, 0, 0],
-      amplitude: 20,
-      waveLength: '90%',
-      phase: 0,
-      period: 1500,
-      direction: 'right',
-      shape: 'path://M62,18 L62,58 L18,172 Q14,187 30,197 L130,197 Q146,187 142,172 L98,58 L98,18 Z',
-      color: [
-        {
-          type: 'linear',
-          x: 0, y: 1, x2: 0, y2: 0,
-          colorStops: [
-            { offset: 0, color: 'rgba(37, 99, 235, 0.7)' },
-            { offset: 0.4, color: 'rgba(14, 165, 233, 0.55)' },
-            { offset: 0.8, color: 'rgba(124, 58, 237, 0.5)' },
-            { offset: 1, color: 'rgba(168, 85, 247, 0.55)' }
-          ]
-        },
-        {
-          type: 'linear',
-          x: 0, y: 1, x2: 0, y2: 0,
-          colorStops: [
-            { offset: 0, color: 'rgba(14, 165, 233, 0.4)' },
-            { offset: 1, color: 'rgba(139, 92, 246, 0.35)' }
-          ]
-        },
-        'rgba(59, 130, 246, 0.3)',
-        'rgba(167, 139, 250, 0.2)'
-      ],
-      backgroundStyle: {
-        color: 'transparent'
-      },
-      label: {
-        show: false
-      },
-      outline: {
-        show: false
-      },
-      itemStyle: {
-        shadowBlur: 25,
-        shadowColor: 'rgba(14, 165, 233, 0.4)'
-      }
-    }]
-  };
-  
-  liquidChart.setOption(option);
-  
-  // Animate liquid filling from 0 to 1 (slower: ~3 seconds)
-  let progress = 0;
-  const animateFill = () => {
-    progress += 0.004;
-    if (progress >= 1) {
-      progress = 1;
-      liquidChart?.setOption({
-        series: [{
-          data: [1, 1, 1, 1]
-        }]
-      });
-    } else {
-      liquidChart?.setOption({
-        series: [{
-          data: [progress, progress, progress]
-        }]
-      });
-      requestAnimationFrame(animateFill);
-    }
-  };
-  
-  requestAnimationFrame(animateFill);
+/** 取消当前题的待提交任务；翻题、手动提交、退出与销毁都不能遗留旧题计时器。 */
+const cancelAutoAdvance = () => {
+  clearTimeout(autoAdvanceTimer);
+  autoAdvanceTimer = undefined;
 };
-
-watch(showDistillation, (val) => {
-  if (val) {
-    currentStep.value = 0;
-    
-    nextTick(() => {
-      setTimeout(() => {
-        initLiquidChart();
-      }, 100);
-    });
-    
-    stepTimer = setInterval(() => {
-      if (currentStep.value < 2) {
-        currentStep.value++;
-      }
-    }, 550);
-  } else {
-    clearInterval(stepTimer);
-  }
-});
 
 onBeforeUnmount(() => {
-  if (liquidChart) {
-    liquidChart.dispose();
-    liquidChart = null;
-  }
-  clearInterval(stepTimer);
+  disposed = true;
+  cancelAutoAdvance();
+  clearTimeout(resultTimer);
 });
 
-const selectOption = (optionId: string) => {
+const selectOption = (optionId: string, event: MouseEvent) => {
+  // 离场DOM仍可能接收点击；按DOM上的题号隔离，不能把旧选项写入已经切换的新题。
+  const questionId = (event.currentTarget as HTMLElement).closest<HTMLElement>('.question-wrapper')?.dataset.questionId;
+  if (isFinishing || isQuestionTransitioning.value || questionId !== currentQuestion.value?.id) return;
+  if (!currentQuestion.value?.options.some(option => option.id === optionId)) return;
   selectedOption.value = optionId;
-  
-  // Auto advance to next question after selection (with small delay for visual feedback)
-  setTimeout(() => {
-    if (!isLastQuestion.value && selectedOption.value === optionId) {
-      submitAndNext();
-    }
-  }, 400); // 400ms delay to let user see the selection
+  // 首次选择确定截止时间，之后只更新选项，不重启计时；到期读取最后的选择。
+  if (autoAdvanceTimer !== undefined) return;
+  autoAdvanceTimer = setTimeout(() => {
+    autoAdvanceTimer = undefined;
+    if (questionId !== currentQuestion.value?.id || isFinishing || isQuestionTransitioning.value) return;
+    submitAndNext();
+  }, AUTO_ADVANCE_DELAY_MS);
 };
 
-const submitAndNext = () => {
-  if (!selectedOption.value) return;
-  
-  const isCompleted = testStore.submitAnswer(selectedOption.value);
-  selectedOption.value = null;
+// 每次切题读取已提交选项，返回改答不再丢失原选择。
+watch(currentQuestion, question => {
+  cancelAutoAdvance();
+  selectedOption.value = question ? testStore.answers[question.id] || null : null;
+}, { immediate: true, flush: 'sync' });
 
-  if (isCompleted) {
-    // If this was the last question, start distillation
-    setTimeout(() => {
-      startDistillation();
-    }, 350);
+const submitAndNext = () => {
+  if (!selectedOption.value || isFinishing || isQuestionTransitioning.value) return;
+  cancelAutoAdvance();
+  if (isLastQuestion.value) {
+    startDistillation();
+    return;
   }
-  // Otherwise, the transition will automatically show next question
+  isQuestionTransitioning.value = true;
+  testStore.submitAnswer(selectedOption.value);
 };
 
 const goToPreviousQuestion = () => {
+  if (isFinishing || isQuestionTransitioning.value) return;
   if (testStore.currentQuestionIndex > 0) {
+    cancelAutoAdvance();
+    isQuestionTransitioning.value = true;
     testStore.goToPreviousQuestion();
-    selectedOption.value = null;
   }
 };
 
 const startDistillation = () => {
-  if (!selectedOption.value && !isLastQuestion.value) return;
+  if (isFinishing || isQuestionTransitioning.value || !isLastQuestion.value || !selectedOption.value) return;
+  cancelAutoAdvance();
+  isFinishing = true;
   
   // Submit last answer if not already submitted
   if (selectedOption.value) {
@@ -352,18 +249,32 @@ const startDistillation = () => {
     selectedOption.value = null;
   }
 
-  setTimeout(() => {
-    showDistillation.value = true;
-    
-    setTimeout(() => {
-      testStore.completeTest();
-      router.push('/result');
-    }, 2600);
-  }, 350);
+  showDistillation.value = true;
+  isResultReady.value = false;
+  resultTimer = setTimeout(() => {
+    if (!disposed && showDistillation.value) isResultReady.value = true;
+  }, RESULT_LOADING_MS);
+};
+
+/** 五秒仅解锁按钮，由用户主动查看结果；同步锁防止重复计算、重复导航，失败可重试。 */
+const goToResult = async () => {
+  if (disposed || !showDistillation.value || !isResultReady.value || isOpeningResult.value) return;
+  isOpeningResult.value = true;
+  resultOpenError.value = '';
+  try {
+    if (!testStore.isTestCompleted) testStore.completeTest();
+    await router.push('/result');
+  } catch (error) {
+    console.error('打开奶蛙结果失败', error);
+    resultOpenError.value = '暂时未能打开结果，请再点一次。';
+  } finally {
+    isOpeningResult.value = false;
+  }
 };
 
 const goBack = () => {
   if (confirm('确定要退出吗？当前进度将会丢失。')) {
+    cancelAutoAdvance();
     testStore.resetTest();
     router.push('/');
   }
@@ -371,12 +282,70 @@ const goBack = () => {
 
 onMounted(() => {
   if (!testStore.isTestStarted) {
-    router.push('/');
+    router.replace('/');
+    return;
+  }
+  // 浏览器返回可能重入已提交最后一题的页面：恢复已有结果，而不是显示永久加载。
+  if (testStore.isTestCompleted && testStore.result) {
+    router.replace('/result');
+    return;
+  }
+  if (!currentQuestion.value) {
+    const questions = testStore.currentTheme?.questions ?? [];
+    const allAnswered = questions.length > 0 && questions.every(question =>
+      question.options.some(option => option.id === testStore.answers[question.id]));
+    if (allAnswered) {
+      testStore.completeTest();
+      router.replace('/result');
+    } else {
+      testStore.resetTest();
+      router.replace('/');
+    }
   }
 });
 </script>
 
 <style scoped>
+.question-meta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  margin: 2rem 2.5rem 1rem;
+}
+
+.question-scene {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.65rem;
+  min-width: 0;
+  margin: 0;
+  color: #84713c;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.question-scene-label {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #67531e;
+}
+
+.question-scene-title {
+  min-width: 0;
+  color: #796b45;
+}
+
+@media (max-width: 480px) {
+  .question-scene {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+}
+
 /* ===== Global Styles ===== */
 .test {
   min-height: 100vh;
@@ -485,7 +454,8 @@ onMounted(() => {
   background: linear-gradient(135deg, #f0f9ff, #ede9fe);
   border: 1px solid #bae6fd;
   border-radius: 18px;
-  margin: 2.2rem 2.5rem 1.5rem;
+  margin: 0;
+  align-self: center;
 }
 
 .q-number-badge span {
@@ -515,6 +485,7 @@ onMounted(() => {
 }
 
 .option-card {
+  -webkit-tap-highlight-color: transparent;
   display: flex;
   align-items: center;
   gap: 1.1rem;
@@ -538,6 +509,8 @@ onMounted(() => {
   transition: opacity 0.3s ease;
 }
 
+/* 触屏浏览器会保留模拟hover，切题后不能让它看起来像已选中。 */
+@media (hover: hover) and (pointer: fine) {
 .option-card:hover::after {
   opacity: 1;
 }
@@ -548,6 +521,8 @@ onMounted(() => {
   transform: translateX(7px);
   box-shadow: 0 4px 16px rgba(14, 165, 233, 0.08);
 }
+}
+.option-card:focus-visible { outline: 2px solid #9e8036; outline-offset: 3px; }
 
 .option-card.selected {
   background: #f0f9ff;
@@ -557,32 +532,9 @@ onMounted(() => {
     inset 0 0 16px rgba(14, 165, 233, 0.04);
 }
 
-.option-card.selected .opt-label {
-  background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
-  color: white;
-  transform: scale(1.08);
-  box-shadow: 0 3px 12px rgba(14, 165, 233, 0.35);
-}
-
 .option-card.selected .opt-check-icon {
   opacity: 1;
   transform: scale(1);
-}
-
-.opt-label {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f5f9;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 9px;
-  color: #64748b;
-  font-weight: 700;
-  font-size: 0.92rem;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
 }
 
 .opt-text {
@@ -593,17 +545,62 @@ onMounted(() => {
 }
 
 .opt-check-icon {
-  width: 26px;
-  height: 26px;
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
-  border-radius: 50%;
-  color: white;
+  background: transparent;
+  pointer-events: none;
   opacity: 0;
   transform: scale(0.5);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+}
+
+.opt-check-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 仅瞳孔移动，虹膜保持不动；320ms内看向左侧，不改变450ms自动提交截止时间。 */
+.opt-eye-pupil {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 8px;
+  left: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #222c21, #0b100a 75%);
+  transform: translate(-4px, 1px);
+}
+
+.opt-eye-pupil::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ffffff80;
+}
+
+.option-card.selected .opt-eye-pupil {
+  animation: eye-look-left 0.32s ease-in-out both;
+}
+
+@keyframes eye-look-left {
+  from { transform: translate(4px, 1px); }
+  to { transform: translate(-4px, 1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opt-check-icon { transition: none; }
+  .option-card.selected .opt-eye-pupil { animation: none; }
 }
 
 /* Stagger delays */
@@ -685,12 +682,12 @@ onMounted(() => {
 
 /* ===== Transitions - PURE opacity (no movement, will-change for GPU acceleration) ===== */
 .question-transition-enter-active {
-  transition: opacity 1.6s ease-in-out;
+  transition: opacity 0.18s ease-out;
   will-change: opacity;
 }
 
 .question-transition-leave-active {
-  transition: opacity 0.4s ease-in-out;
+  transition: opacity 0.12s ease-in;
   will-change: opacity;
 }
 
@@ -714,190 +711,75 @@ onMounted(() => {
 .distill-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(248, 250, 252, 0.97);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #fffaf0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 999;
-  overflow: hidden;
+  overflow-y: auto;
+  padding: max(20px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
 }
 
 .distill-content {
   text-align: center;
-  max-width: 480px;
-  padding: 2.5rem;
-}
-
-.flask-wrapper {
-  position: relative;
-  width: 180px;
-  height: 240px;
-  margin: 0 auto 2.2rem;
-}
-
-.liquid-chart {
-  width: 180px;
-  height: 240px;
-}
-
-.flask-overlay-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
+  max-width: 680px;
+  margin-block: auto;
+  flex-shrink: 0;
 }
 
-.flask-outline {
-  fill: rgba(240, 248, 255, 0.04) !important;
-  stroke: rgba(199, 210, 254, 0.3) !important;
-  stroke-width: 0.6 !important;
+.distill-ads {
+  margin-bottom: 1.4rem;
 }
 
-.bubbles-container {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 140px;
-  overflow: hidden;
-  pointer-events: none;
+.distill-ads-title {
+  margin: 0 0 0.75rem;
+  color: #756335;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
-.bubble-particle {
-  position: absolute;
-  bottom: 0;
-  width: 5px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  animation: bubble-float 1.5s ease-out infinite;
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.4);
+.distill-ad-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-@keyframes bubble-float {
-  0% {
-    transform: translateY(0) translateX(0) scale(0.3);
-    opacity: 1;
-  }
-  30% {
-    transform: translateY(-40px) translateX(3px) scale(0.6);
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(-120px) translateX(-5px) scale(1.2);
-    opacity: 0;
-  }
+.distill-ad-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  border: 1px dashed #d8cda9;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 12px #76602306;
 }
 
-.steam-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.steam-particle {
-  position: absolute;
-  top: 10px;
-  width: 5px;
-  height: 5px;
-  background: rgba(148, 163, 184, 0.5);
-  border-radius: 50%;
-  filter: blur(3px);
-  animation: steam-drift 3s ease-out infinite;
-}
-
-@keyframes steam-drift {
-  0% {
-    transform: translateY(0) translateX(0) scale(0.8);
-    opacity: 0.6;
-  }
-  40% {
-    opacity: 0.45;
-  }
-  100% {
-    transform: translateY(-60px) translateX(8px) scale(2.8);
-    opacity: 0;
-  }
+.distill-ad-copy {
+  color: #847044;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
 }
 
 .distill-heading {
-  font-size: 1.7rem;
+  font-size: clamp(1.15rem, 3.6vw, 1.65rem);
   font-weight: 700;
-  color: #1e293b;
+  color: #3a351f;
   margin-bottom: 0.7rem;
-  background: linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  line-height: 1.5;
 }
 
-.distill-subtext {
-  color: #64748b;
-  font-size: 0.98rem;
-  margin-bottom: 2.8rem;
-  letter-spacing: 0.02em;
-}
-
-.step-indicators {
-  display: flex;
-  justify-content: center;
-  gap: 2.5rem;
-}
-
-.step-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.55rem;
-  opacity: 0.28;
-  transition: all 0.5s ease;
-  transform: translateY(8px);
-}
-
-.step-item.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.step-item.completed {
-  opacity: 0.65;
-}
-
-.step-emoji {
-  font-size: 1.9rem;
-  filter: grayscale(1);
-  transition: all 0.4s ease;
-}
-
-.step-item.active .step-emoji {
-  filter: grayscale(0);
-  transform: scale(1.12);
-  animation: step-bounce 0.55s ease;
-}
-
-@keyframes step-bounce {
-  0%, 100% { transform: scale(1.12); }
-  50% { transform: scale(1.28); }
-}
-
-.step-name {
-  font-size: 0.83rem;
-  color: #94a3b8;
-  font-weight: 600;
-}
-
-.step-item.active .step-name {
-  color: #0ea5e9;
-}
+.distill-result-action { min-height: 52px; display: grid; place-items: center; }
+.distill-result-btn { padding: 0.75rem 2.3rem; border: 1px solid #d4b850; border-radius: 999px;
+  background: #f1d875; color: #3a351f; font: inherit; font-weight: 700; cursor: pointer;
+  box-shadow: 0 4px 0 #c9ad48; transition: transform 0.15s, box-shadow 0.15s; }
+.distill-result-btn:hover { background: #f6df87; }
+.distill-result-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #c9ad48; }
+.distill-result-btn:focus-visible { outline: 3px solid #8b7028; outline-offset: 4px; }
+.distill-result-btn:disabled { opacity: 0.65; cursor: wait; }
+.distill-result-error { color: #9e3d28; font-size: 0.8rem; margin-top: 0.75rem; }
 
 /* ===== Loading ===== */
 .loading-view {
@@ -956,6 +838,11 @@ onMounted(() => {
     padding: 0.48rem 1rem;
   }
 
+  .question-meta {
+    margin: 1.5rem 1.5rem 1rem;
+    gap: 0.75rem;
+  }
+
   .q-text {
     font-size: 1.28rem;
     margin-left: 1.5rem;
@@ -986,19 +873,14 @@ onMounted(() => {
   }
 
   .distill-content {
-    padding: 2rem 1.5rem;
+    max-width: 440px;
   }
 
-  .flask-wrapper {
-    transform: scale(0.85);
-  }
+}
 
-  .step-indicators {
-    gap: 1.3rem;
-  }
-
-  .step-name {
-    font-size: 0.78rem;
-  }
+@media (max-height: 700px) {
+  .distill-ads { margin-bottom: 1rem; }
+  .distill-ad-placeholder { min-height: 44px; }
+  .distill-heading { margin-bottom: 0.35rem; }
 }
 </style>

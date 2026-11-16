@@ -6,11 +6,20 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:cloudflare": "vite build --base=/ --outDir dist-cloudflare",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "deploy": "npm run build && npx gh-pages -d dist",
     "test:validate": "node --experimental-strip-types scripts/validate-all.mjs",
-    "test:validate:single": "node --experimental-strip-types scripts/validate.js"
+    "test:validate:single": "node --experimental-strip-types scripts/validate.js",
+    "test:personality": "node --experimental-strip-types scripts/test-keyed-scale.mjs && node --experimental-strip-types scripts/test-naifrog.mjs && node --experimental-strip-types scripts/test-semantic.mjs",
+    "test:hero": "node --experimental-strip-types scripts/test-hero-gaze.mjs && node --experimental-strip-types scripts/test-tongue-elastic.mjs",
+    "test:loading": "node scripts/test-loading-budget.mjs",
+    "test:loading:cloudflare": "node scripts/test-loading-budget.mjs --cloudflare",
+    "test:deployment-base": "node scripts/test-deployment-base.mjs",
+    "test:share": "node --experimental-strip-types scripts/test-result-share.mjs",
+    "test:team": "node scripts/test-team-layout.mjs",
+    "test:regression": "node --experimental-strip-types scripts/test-registration.mjs && node --experimental-strip-types scripts/test-persona-memes.mjs && node scripts/test-test-lifecycle.mjs && node --experimental-strip-types scripts/test-result-layout.mjs && node --experimental-strip-types scripts/test-question-layout.mjs && node --experimental-strip-types scripts/test-loading-layout.mjs && node --experimental-strip-types scripts/test-frog-relations.mjs && node scripts/test-poster-dialog.mjs"
   },
   "dependencies": {
     "echarts": "^5.6.0",

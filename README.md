@@ -1,4 +1,41 @@
-# PMD - Personality Model Distillation System
+# WhoAreYou · 你是什么东西
+
+奶蛙娱乐人格测试，基于 [PMD](https://github.com/sigpanic/PMD) 二次开发；保留原项目历史与 MIT 许可证。原项目介绍见下方。
+
+- 在线测试：https://whoareyou-naifrog.pages.dev/
+- 项目仓库：https://github.com/chenghuijin00-web/WhoAreYou
+- 技术栈：Vue 3、TypeScript、Vite、Pinia、Vue Router。
+- 内容：12道生活情境题、16种奶蛙形象、随机短评、结果海报、合作联系页面。仅供娱乐，不是心理诊断。
+
+## 本地运行
+
+```sh
+git clone https://github.com/chenghuijin00-web/WhoAreYou.git
+cd WhoAreYou
+npm ci
+npm run dev
+```
+
+本地默认基址为 `/PMD/`，按终端显示的端口打开对应地址。
+
+## 构建与验证
+
+```sh
+npm run typecheck
+npm run test:regression
+npm run test:team
+npm run test:share
+npm run build:cloudflare
+npm run test:loading:cloudflare
+```
+
+Cloudflare构建输出到`dist-cloudflare`，根路径部署；`npm run build`保留旧服务器`/PMD/`基址，输出到`dist`。正式分享/海报入口在`src/config/site.json`配置。上传GitHub不会自动更新现有Cloudflare直接上传站点。
+
+不提交依赖目录、构建产物、环境密钥或Cloudflare登录凭据。原代码许可证不等于图片、角色或二维码素材的额外授权，发布者须确认相应使用权限。
+
+---
+
+# 原项目：PMD - Personality Model Distillation System
 
 **人格蒸馏系统**
 

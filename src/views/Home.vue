@@ -1,139 +1,75 @@
 <template>
-  <div class="home">
+  <div ref="homeRoot" class="home home-fullscreen" :class="{ 'home-immersive': immersive }">
     <!-- Hero Section -->
     <div class="hero">
-      <h1 class="title">PMD</h1>
-      <p class="subtitle">人格蒸馏系统</p>
-      <p class="tagline">Distill Personality, Understand Yourself</p>
+      <nav v-if="!immersive" class="hero-links" aria-label="首页链接">
+        <a class="official-site-link" href="https://oddtwin.fun/">跳转官网</a>
+        <RouterLink class="team-intro-link" to="/team">团队介绍</RouterLink>
+      </nav>
+      <button ref="modeButton" class="immersive-toggle" type="button" :disabled="!mascotReady && !immersive"
+        :aria-label="immersive ? '退出纯享模式' : undefined" @click="toggleImmersive">
+        <svg v-if="immersive" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        <span v-else>纯享模式</span>
+      </button>
+      <button v-if="immersive && fullscreenUnavailable" class="immersive-toggle immersive-help"
+        type="button" aria-label="全屏说明" :aria-expanded="showFullscreenHelp"
+        aria-controls="immersive-help-panel" @click="showFullscreenHelp = !showFullscreenHelp">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6m0-10v2" /></svg>
+      </button>
+      <p v-if="immersive && fullscreenUnavailable && showFullscreenHelp" id="immersive-help-panel"
+        class="immersive-help-panel" role="status">
+        当前浏览器未能隐藏地址栏。可在系统浏览器中打开后再试。iPhone 可用 Safari「共享 → 添加到主屏幕」，如有「作为网页 App 打开」则开启，再从主屏幕图标进入。
+      </p>
+      <HeroMascot :disabled="starting || !testTheme" :immersive="immersive" @start="startTest" @ready-change="onMascotReady" />
+      <div v-if="!immersive" class="yellow-hero-copy">
+        <h1 class="title">你是<br>什么东西<span class="yellow-question">?</span></h1>
+        <p class="english-brand" lang="en">WhoAreYou</p>
+        <p class="subtitle hero-slogan"><span>拉取舌头进行答题</span><span>探究你在奶蛙世界</span><span>会是一只什么样的蛙</span></p>
+      </div>
+
     </div>
 
-    <!-- 3D Carousel Section -->
-    <div class="carousel-wrapper">
-      <h2 class="section-title">选择蒸馏主题</h2>
-      
-      <div 
-        class="carousel-scene"
-        @wheel.prevent="handleWheel"
-        @touchstart.passive="handleTouchStart"
-        @touchmove.passive="handleTouchMove"
-        @touchend="handleTouchEnd"
-      >
-        <div class="carousel-viewport">
-          <div 
-            v-for="(theme, index) in displayThemes" 
-            :key="theme.id"
-            class="carousel-item"
-            :class="{ active: index === currentIndex }"
-            :style="getCardStyle(index)"
-            @click="handleCardClick(theme, index)"
-          >
-            <div class="card-glassmorphism">
-              <div class="card-content">
-                <div class="icon-container">
-                  <img 
-                    v-if="theme.imageUrl" 
-                    :src="theme.imageUrl" 
-                    :alt="theme.name"
-                    class="theme-image"
-                  />
-                  <span v-else-if="theme.icon" class="theme-icon">{{ theme.icon }}</span>
-                  <span v-else class="theme-icon">🚧</span>
-                  <div class="icon-pulse"></div>
-                </div>
-                
-                <h3 class="theme-name">{{ theme.name }}</h3>
-                <p class="theme-desc">{{ theme.description }}</p>
-                
-                <button 
-                  v-if="index === currentIndex && theme.id !== 'soon'"
-                  class="action-button"
-                  @click.stop="startTestWithTheme(theme, $event)"
-                >
-                  <span>开始蒸馏</span>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </button>
-              </div>
-              
-              <div class="card-reflection"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navigation Controls (Below Carousel) -->
-      <div class="navigation-controls">
-        <button class="nav-arrow prev" @click="prevSlide" aria-label="上一张">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M15 18l-6-6 6-6"/>
-          </svg>
-        </button>
-        
-        <div class="indicators-row">
-          <button
-            v-for="(theme, index) in displayThemes"
-            :key="'dot-' + index"
-            class="indicator-dot"
-            :class="{ active: index === currentIndex }"
-            @click="goToSlide(index)"
-            :aria-label="`跳转到 ${theme.name}`"
-          ></button>
-        </div>
-        
-        <button class="nav-arrow next" @click="nextSlide" aria-label="下一张">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M9 18l6-6-6-6"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Keyboard Hint -->
-      <div class="keyboard-hint">
-        <kbd>←</kbd><kbd>→</kbd> 切换 · <kbd>Enter</kbd> 选择
-      </div>
-    </div>
 
     <!-- Features Grid -->
-    <div class="features-grid">
+    <div v-if="showDetails && !immersive" class="features-grid">
       <div class="feature-card" v-for="(feature, idx) in featuresData" :key="idx">
-        <div class="feature-icon-wrapper">{{ feature.icon }}</div>
+        <ProgressiveImage class="frog-mood-image" :src="feature.image" alt="" loading="lazy" :width="160" :height="160" />
         <h3>{{ feature.title }}</h3>
         <p>{{ feature.description }}</p>
       </div>
     </div>
 
     <!-- About Section -->
-    <div class="about-section">
+    <div v-if="showDetails && !immersive" class="about-section">
       <div class="about-content">
-        <h2>关于 PMD</h2>
-        <p class="about-intro">本测评仅供娱乐，所有结果基于<strong>加权多维匹配算法</strong>生成：</p>
+        <h2>每一种你，都有点意思。</h2>
+        <p class="about-intro">12 道原创生活情境题，恋人、朋友、日常各 4 题，参考<strong>四组人格偏好结构</strong>，对应 16 种奶蛙皮肤：</p>
         
         <ul class="algorithm-list">
           <li>
             <span class="step-number">01</span>
             <div class="step-content">
-              <strong>维度相似度计算（55%权重）</strong>
-              <small>加权欧氏距离匹配用户得分与预设模板</small>
+              <strong>选更像日常的那一个</strong>
+              <small>没有标准答案，选好自动下一题；跳转前可改选，不重新计时。</small>
             </div>
           </li>
           <li>
             <span class="step-number">02</span>
             <div class="step-content">
-              <strong>证据评分系统（45%权重）</strong>
-              <small>选项显式支持/冲突动态调整分数</small>
+              <strong>四组偏好，分别汇总</strong>
+              <small>每题 3 个选项，按内容分别汇总四组偏好；弱线索降权，各组题量独立归一化。</small>
             </div>
           </li>
           <li>
             <span class="step-number">03</span>
             <div class="step-content">
-              <strong>约束校验机制</strong>
-              <small>硬性/软性约束条件惩罚性降权</small>
+              <strong>16 种类型，一一对应奶蛙</strong>
+              <small>测完就有一只奶蛙；分差小会注明，未测出倾向的维度使用默认娱乐设定。</small>
             </div>
           </li>
         </ul>
 
-        <p class="disclaimer-text">⚠️ 该算法不具备任何科学依据或心理学意义，请勿将结果当真。</p>
+        <p class="disclaimer-text">仅供娱乐，非专业心理测评。未经过心理测量学验证，不用于诊断、招聘或关系判断。答案只在当前浏览器内存中计算，刷新后会清空。</p>
         
         <a href="https://github.com/sigpanic/PMD" target="_blank" rel="noopener noreferrer" class="github-link">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -147,182 +83,61 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { RouterLink, useRouter } from 'vue-router';
 import { useTestStore } from '../stores/testStore';
+import HeroMascot from '../components/HeroMascot.vue';
+import ProgressiveImage from '../components/ProgressiveImage.vue';
+import { useImmersiveFullscreen } from '../components/useImmersiveFullscreen';
+import { mascotAssets } from '../assets/mascotAssets';
 
 const router = useRouter();
 const testStore = useTestStore();
-
-const currentIndex = ref(0);
-const isAnimating = ref(false);
-let touchStartX = 0;
-let touchEndX = 0;
-let isSwiping = false;
-
-const allThemes = computed(() => testStore.allThemes);
-
-const displayThemes = computed(() => {
-  const themes = allThemes.value.map(t => ({
-    ...t,
-    icon: t.icon || (t.id === 'programmer' ? '💻' : t.id === 'kingglory' ? '🎮' : undefined)
-  }));
-  
-  if (themes.length < 3) {
-    return [
-      ...themes,
-      { id: 'soon', name: '更多主题', description: '正在开发中...', icon: '🚧', imageUrl: undefined }
-    ];
-  }
-  
-  return themes;
+// 暂时只保留一屏首页；恢复下方介绍时可统一打开，避免仅视觉隐藏仍请求图片。
+const showDetails = false;
+const starting = ref(false);
+const mascotReady = ref(false);
+const homeRoot = ref<HTMLElement | null>(null);
+const modeButton = ref<HTMLButtonElement | null>(null);
+const showFullscreenHelp = ref(false);
+const { immersive, fullscreenUnavailable, enterImmersive, leaveImmersive } = useImmersiveFullscreen(homeRoot, () => {
+  showFullscreenHelp.value = false;
+  modeButton.value?.focus();
 });
+function toggleImmersive() {
+  if (immersive.value) leaveImmersive();
+  else if (mascotReady.value) void enterImmersive();
+}
+function onMascotReady(value: boolean) {
+  mascotReady.value = value;
+  if (!value) leaveImmersive();
+}
+// 点击空白后焦点可能回到 body；监听窗口，且只在首页挂载期间生效。
+function onHomeKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && !event.defaultPrevented && !event.isComposing) leaveImmersive();
+}
+onMounted(() => window.addEventListener('keydown', onHomeKeyDown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onHomeKeyDown));
+const testTheme = computed(() => testStore.allThemes.find(theme => theme.id === 'programmer'));
 
 const featuresData = [
-  { icon: '🎭', title: '任意主题', description: '从程序员到铲屎官，从社恐到社牛，只要你能定义，就能蒸馏' },
-  { icon: '🧪', title: '加权多维匹配', description: '维度相似度(55%) + 证据评分(45%) + 约束校验的多层次算法' },
-  { icon: '🤖', title: 'AI 友好', description: '提供完整提示词、协议定义和验收标准，AI 自动生成测评' },
-  { icon: '🔒', title: '纯前端架构', description: '无需后端服务器，数据本地处理，隐私安全有保障' }
+  { image: mascotAssets.curious, title: '表面镇定，内心问号', description: '看起来什么都懂，其实脑袋里已经开了八个小窗口。' },
+  { image: mascotAssets.sleepy, title: '偶尔躺平，也很合理', description: '今天的能量用完了？先歇一会儿，再继续做自己。' },
+  { image: mascotAssets.phone, title: '呼叫同频的朋友', description: '测完把人格告诉朋友，看看谁才是你的互联网搭子。' }
 ];
 
-onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
-});
-
-const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'ArrowLeft') prevSlide();
-  else if (e.key === 'ArrowRight') nextSlide();
-  else if (e.key === 'Enter') {
-    const theme = displayThemes.value[currentIndex.value];
-    if (theme.id !== 'soon') startTestWithTheme(theme);
-  }
-};
-
-const handleWheel = (e: WheelEvent) => {
-  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) return;
-  e.preventDefault();
-  if (e.deltaX > 30) nextSlide();
-  else if (e.deltaX < -30) prevSlide();
-};
-
-const handleTouchStart = (e: TouchEvent) => {
-  touchStartX = e.touches[0].clientX;
-  isSwiping = false;
-};
-
-const handleTouchMove = (e: TouchEvent) => {
-  touchEndX = e.touches[0].clientX;
-  const diff = touchStartX - touchEndX;
-  if (Math.abs(diff) > 10) {
-    isSwiping = true;
-  }
-};
-
-const handleTouchEnd = () => {
-  const diff = touchStartX - touchEndX;
-  if (Math.abs(diff) > 50 && isSwiping) {
-    diff > 0 ? nextSlide() : prevSlide();
-    return;
-  }
-  isSwiping = false;
-};
-
-const getPrevIndex = () => (currentIndex.value - 1 + displayThemes.value.length) % displayThemes.value.length;
-const getNextIndex = () => (currentIndex.value + 1) % displayThemes.value.length;
-
-const getCardStyle = (index: number) => {
-  const total = displayThemes.value.length;
-  let offset = index - currentIndex.value;
-  
-  // Normalize for circular effect
-  if (offset > total / 2) offset -= total;
-  if (offset < -total / 2) offset += total;
-
-  // CRITICAL FIX: Use only translateX for centering, no margin hacks
-  if (offset === 0) {
-    return {
-      transform: `translateX(-50%) translateY(-50%) scale(1)`,
-      left: '50%',
-      top: '50%',
-      opacity: 1,
-      zIndex: 10,
-      filter: 'blur(0px)'
-    };
-  }
-
-  const absOffset = Math.abs(offset);
-  const direction = offset > 0 ? 1 : -1;
-  const translateX = direction * (320 + absOffset * 80);
-  const scale = 0.82 - absOffset * 0.04;
-  const rotateY = direction * -28 - absOffset * 8;
-  const opacity = 0.55 - absOffset * 0.12;
-  const blur = absOffset * 1.8;
-
-  return {
-    transform: `translateX(calc(-50% + ${translateX}px)) translateY(calc(-50% + ${absOffset * 12}px)) scale(${scale}) rotateY(${rotateY}deg)`,
-    left: '50%',
-    top: '50%',
-    opacity: Math.max(opacity, 0.18),
-    zIndex: 10 - absOffset,
-    filter: `blur(${blur}px)`
-  };
-};
-
-const prevSlide = () => {
-  if (isAnimating.value || displayThemes.value.length <= 1) return;
-  isAnimating.value = true;
-  currentIndex.value = getPrevIndex();
-  setTimeout(() => isAnimating.value = false, 650);
-};
-
-const nextSlide = () => {
-  if (isAnimating.value || displayThemes.value.length <= 1) return;
-  isAnimating.value = true;
-  currentIndex.value = getNextIndex();
-  setTimeout(() => isAnimating.value = false, 650);
-};
-
-const goToSlide = (index: number) => {
-  if (isAnimating.value || index === currentIndex.value) return;
-  isAnimating.value = true;
-  currentIndex.value = index;
-  setTimeout(() => isAnimating.value = false, 650);
-};
-
-const handleCardClick = (theme: any, index: number) => {
-  if (index !== currentIndex.value) {
-    goToSlide(index);
-  } else if (theme.id !== 'soon') {
-    startTestWithTheme(theme);
-  } else {
-    alert('更多主题正在开发中...敬请期待');
-  }
-};
-
-const startTestWithTheme = (theme: any, event?: Event) => {
-  if (event) event.stopPropagation();
-  if (theme.id === 'soon') return;
-  
-  const cardEl = document.querySelector('.carousel-item.active') as HTMLElement;
-  
-  if (cardEl) {
-    cardEl.classList.add('expanding');
-    
-    setTimeout(() => {
-      testStore.setTheme(theme.id);
-      testStore.startTest();
-      router.push('/test');
-    }, 900);
-  } else {
-    testStore.setTheme(theme.id);
+/** 舌头完成拉伸回弹后进入当前奶蛙题库；同步锁住路由切换期间的重复请求。 */
+async function startTest() {
+  if (immersive.value || starting.value || !testTheme.value) return;
+  starting.value = true;
+  try {
+    testStore.setTheme(testTheme.value.id);
     testStore.startTest();
-    router.push('/test');
+    await router.push('/test');
+  } finally {
+    starting.value = false;
   }
-};
+}
 </script>
 
 <style scoped>
@@ -418,6 +233,11 @@ const startTestWithTheme = (theme: any, event?: Event) => {
   position: absolute;
   inset: -40px;
   z-index: 1;
+}
+
+/* 当前卡片的扩展命中层不能盖住真正的按钮，避免鼠标和触屏被透明区域拦截。 */
+.carousel-item.active::before {
+  pointer-events: none;
 }
 
 .carousel-item:hover:not(.active) {

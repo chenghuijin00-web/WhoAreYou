@@ -1,3 +1,4 @@
+import { calculateFourAxisResult, rankFourAxisTypes } from '../core/fourAxis.ts';
 import type {
   TestInterface,
   ExtensionInterface,
@@ -32,16 +33,26 @@ export class TestProtocol implements TestInterface, ExtensionInterface {
     this.evidenceExtremes = this.buildEvidenceExtremes(test);
   }
 
+  /** 提交或覆盖指定题目的有效选项；非法题目和选项不写入答题状态。 */
   submitAnswer(questionId: string, optionId: string): void {
     if (!this.currentTest) {
       throw new Error('No test started');
     }
+    const question = this.currentTest.questions.find(item => item.id === questionId);
+    if (!question?.options.some(option => option.id === optionId)) {
+      throw new Error('题目或选项不存在');
+    }
     this.answers[questionId] = optionId;
   }
 
+  /** 根据当前配置选择计分模式，返回类型、维度及解读；四维模式要求全部题目已答。 */
   getResult(): TestResult {
     if (!this.currentTest) {
       throw new Error('No test started');
+    }
+
+    if (this.currentTest.scoringMode === 'four_axis') {
+      return calculateFourAxisResult(this.currentTest, this.answers);
     }
 
     const dimensions = this.calculateDimensions();
@@ -64,6 +75,7 @@ export class TestProtocol implements TestInterface, ExtensionInterface {
     };
   }
 
+  /** 返回主结果及同源候选排序；四维贴近分不表示概率，临界轴不作为明确特征。 */
   getDetailedResult(): TestResult & {
     topMatches: Array<{ personalityType: PersonalityType; percentage: number }>;
     isHybrid: boolean;
@@ -71,6 +83,17 @@ export class TestProtocol implements TestInterface, ExtensionInterface {
   } {
     if (!this.currentTest) {
       throw new Error('No test started');
+    }
+
+    if (this.currentTest.scoringMode === 'four_axis') {
+      const result = this.getResult();
+      return {
+        ...result,
+        topMatches: rankFourAxisTypes(this.currentTest, result).slice(0, 3).map(({ personalityType, percentage }) => ({ personalityType, percentage })),
+        isHybrid: result.preferences!.some(axis => axis.close),
+        dominantTraits: result.preferences!.filter(axis => !axis.close)
+          .sort((a, b) => Math.abs(b.right_percent - 50) - Math.abs(a.right_percent - 50)).map(axis => axis.dimension)
+      };
     }
 
     const dimensions = this.calculateDimensions();
@@ -111,18 +134,27 @@ export class TestProtocol implements TestInterface, ExtensionInterface {
     this.answers = {};
   }
 
+  /** 按维度ID注册或更新元数据，重复开始测试不累积相同维度。 */
   registerDimension(dimension: Dimension): void {
-    this.dimensions.push(dimension);
+    this.upsertById(this.dimensions, dimension);
   }
 
+  /** 按类型ID更新角色元数据，保持注册表大小与实际类型数量一致。 */
   registerPersonalityType(personalityType: PersonalityType): void {
-    this.personalityTypes.push(personalityType);
+    this.upsertById(this.personalityTypes, personalityType);
   }
 
+  /** 同ID使用最新题库供下一次开始；不替换currentTest，避免中途更新污染正在作答的版本。 */
   registerTest(test: TestConfig): void {
-    this.tests.push(test);
+    this.upsertById(this.tests, test);
     test.dimensions.forEach(dimension => this.registerDimension(dimension));
     test.personalityTypes.forEach(personalityType => this.registerPersonalityType(personalityType));
+  }
+
+  private upsertById<T extends { id: string }>(items: T[], item: T): void {
+    const index = items.findIndex(existing => existing.id === item.id);
+    if (index === -1) items.push(item);
+    else items[index] = item;
   }
 
   private buildDimensionMaxScores(test: TestConfig): Record<string, number> {

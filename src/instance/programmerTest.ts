@@ -2,8 +2,9 @@ import type { TestConfig } from '../protocol/types';
 
 export const programmerTest: TestConfig = {
   id: 'programmer',
-  name: '程序员人格测试',
-  description: 'AI时代程序员人格测试，测测你在码农生态链中的真实定位',
+  name: '奶蛙人格测试',
+  imageUrl: '/PMD/images/frog-curious.png',
+  description: '披上奶蛙的外衣，测测你在码农生态链中的真实定位',
   dimensions: [
     {
       id: 'ai_dependency',

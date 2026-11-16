@@ -1,0 +1,116 @@
+/* 黄团子主题覆盖层；与服务器入口保持一致，不改变测试配置与计分。 */
+:root {
+  --milk-bg: #fff;
+  --milk-paper: #fff;
+  --milk-ink: #292a22;
+  --milk-muted: #696b5c;
+  --milk-line: #e9e7d8;
+  --milk-accent: #b82e20;
+}
+#app :is(.home, .test, .result) { background: #fff; }
+/* 结果页降低大片纯白的视觉反差，保留奶黄色卡片与原有文字对比。 */
+#app .result { background: #f7f3e8; }
+#app .hero { position: relative; isolation: isolate; box-sizing: border-box; min-height: 800px; max-width: 1240px; margin: auto; padding: 56px 48px 40px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 45px; align-items: end; text-align: left; border-radius: 0 0 48px 48px; background: #fffdf6; }
+#app .hero .yellow-hero-copy { position: relative; z-index: 1; align-self: start; }
+#app .hero .team-intro-link { position: absolute; z-index: 3; top: 12px; left: 42px; display: inline-flex; align-items: center; min-height: 36px; padding: 0 6px; color: #69531a; font-size: 13px; text-decoration: none; }
+#app .hero .team-intro-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+#app .hero .team-intro-link:focus-visible { outline: 2px solid #9a7921; outline-offset: 3px; border-radius: 4px; }
+#app .hero .hero-slogan { max-width: 310px; margin: 16px 0 0; }
+#app .hero .hero-slogan span { display: block; }
+#app .hero .hero-slogan span + span { text-indent: 1em; }
+/* 测试卡片直接进入首屏，不再先展示一张装饰图后重复引导下滑。 */
+#app .hero > .carousel-wrapper { position: relative; z-index: 1; width: 100%; min-width: 0; margin: 0; padding: 0; }
+#app .hero .carousel-scene { padding: 0; height: 430px; }
+#app .hero .section-title { margin: 0 0 12px; text-align: center; font-size: 1.25rem; }
+#app .title { font-size: clamp(44px, 6vw, 82px); line-height: 1.18; letter-spacing: -3px; margin: 24px 0; }
+.yellow-question { color: #e73523; display: inline-block; transform: rotate(9deg); }
+.english-brand { color: #696b5c; font-size: 18px; font-weight: 600; letter-spacing: 2px; margin: -8px 0 20px; }
+#app .subtitle { font-weight: 400; line-height: 2; }
+.yellow-explore { display: inline-block; margin: 15px 0; padding: 16px 24px; background: #f4d75e; border: 1px solid #dfbf4a; border-radius: 16px; color: #34301c; box-shadow: 0 4px 0 #d2b346; text-decoration: none; }
+.yellow-explore:hover { background: #ffe580; }
+.yellow-hero-art { text-align: center; position: relative; }
+.yellow-hero-art img { width: 100%; height: auto; max-width: 390px; display: block; margin: auto; }
+.yellow-hero-art span { display: inline-block; padding: 8px 15px; border: 1px solid #eaddaa; border-radius: 12px; background: #fff9df; transform: rotate(-3deg); color: #6e5c29; font-size: 12px; }
+#app .nursery-badge { color: #69531a; background: #fff5c8; border: 0; }
+#app .carousel-wrapper { scroll-margin-top: 24px; }
+#app .carousel-item.active .card-glassmorphism { border-color: #dfc35d; box-shadow: 0 12px 35px #b1943317; }
+#app .carousel-item.active:hover .card-glassmorphism { box-shadow: 0 14px 35px #b1943320; }
+#app :is(.action-button, .action-btn-primary, .next-btn.active, .distill-btn.active) { background: #f4d75e; border-color: #dfbf4a; color: #34301c; border-radius: 16px; box-shadow: 0 4px 0 #d2b346; }
+#app :is(.action-button, .action-btn-primary, .next-btn.active, .distill-btn.active):hover:not(:disabled) { background: #ffe580; box-shadow: 0 4px 0 #d2b346; }
+#app :is(.option-card, .interpretation-box, .algorithm-list li) { background: #fffcf1; border-color: #ece6cc; }
+@media (hover: hover) and (pointer: fine) {
+  #app .option-card:hover { background: #fff7d7; border-color: #c6a537; }
+}
+#app .option-card.selected { background: #fff2b6; border-color: #b89a32; box-shadow: 0 0 0 2px #e6cf7c35; }
+#app .option-card.selected .opt-label { background: #b82e20; border-color: #b82e20; color: #fff; }
+#app :is(.opt-label, .q-number-badge, .theme-tag) { background: #fff5c8; border-color: #eaddaa; color: #67531e; }
+#app .progress-fill { background: #d8b635; }
+#app .indicator-dot.active { background: #c83220; }
+#app .icon-pulse { border-color: #eedc91; }
+#app .feature-card::before { background: #e1ca6a; }
+#app .distill-overlay { background: #fffffff5; }
+#app .personality-glass-card { background: #fff9df; border-color: #eaddaa; }
+#app .interpretation-box { border-left-color: #dfbf4a; }
+#app .ring-bg { stroke: #f0ead7; }
+#app .ring-progress { stroke: #c6a02d; }
+#app .section-title-heading svg { color: #9a7921; }
+#app .features-grid { margin-top: 2rem; }
+#app .theme-image { width: 110px; height: 110px; object-fit: contain; }
+#app .theme-icon { font-size: 4rem; }
+#app .icon-pulse { width: 116px; height: 116px; }
+#app .card-content { padding: 1.8rem 2rem; }
+#app .icon-container { margin-bottom: .7rem; }
+#app .theme-name { margin-bottom: .6rem; }
+#app .theme-desc { margin-bottom: 1.3rem; }
+#app .features-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+#app .feature-card { text-align: center; padding: 24px 22px 28px; background: #fffef9; }
+.frog-mood-image { display: block; width: 150px; height: 150px; object-fit: contain; margin: 0 auto 16px; }
+#app .feature-card h3 { font-size: 1.08rem; }
+#app .feature-card p { font-size: .9rem; line-height: 1.85; margin-bottom: 0; }
+.frog-question-note { display: flex; align-items: center; gap: 14px; max-width: 900px; margin: -12px auto 20px; }
+.frog-question-note img { flex-shrink: 0; object-fit: contain; }
+.frog-question-note p { color: var(--milk-muted); font-size: 13px; margin: 0; }
+.frog-result-mascot { display: block; width: 120px; height: 120px; object-fit: contain; margin: 0 auto 8px; }
+@media (max-width: 768px) {
+  #app .hero { min-height: 690px; padding: 28px 24px 25px; grid-template-columns: 1fr; gap: 0; align-items: start; border-radius: 0 0 32px 32px; }
+  #app .hero .yellow-hero-copy { text-align: center; }
+  #app .hero .title { margin: 14px 0; }
+  #app .hero .subtitle { margin-bottom: 0; }
+  #app .hero .subtitle { font-size: 14px; line-height: 1.8; letter-spacing: 0; color: #5a513e; }
+  /* 窄文案列落在双眼之间，避免长句横跨眼眶；不改变原图或眼睛坐标。 */
+  #app .hero .hero-slogan { width: 9em; max-width: 100%; margin: 14px auto 0; font-size: clamp(11px, 3vw, 14px); line-height: 1.85; }
+  #app .hero .hero-slogan span, #app .hero .hero-slogan span + span { white-space: nowrap; text-indent: 0; }
+  #app .hero .team-intro-link { top: 17px; left: 12px; font-size: 12px; }
+  #app .hero .english-brand { font-size: 15px; margin-bottom: 12px; }
+  #app .hero .carousel-scene, #app .hero .carousel-viewport { height: 350px; }
+  #app .hero .carousel-item { height: 340px; }
+  #app .hero .card-content { padding: 20px 24px; }
+  #app .hero .theme-image { width: 88px; height: 88px; }
+  #app .hero .icon-pulse { width: 94px; height: 94px; }
+  #app .hero .carousel-item { width: min(340px, calc(100vw - 64px)); }
+  #app .title { font-size: clamp(40px, 11vw, 68px); letter-spacing: -2px; }
+  .yellow-hero-art img { max-width: 240px; }
+  .yellow-explore { font-size: 14px; }
+  #app .carousel-scene { height: 420px; }
+  #app .features-grid { grid-template-columns: 1fr; gap: 16px; }
+  #app .feature-card { display: grid; grid-template-columns: 90px 1fr; column-gap: 16px; text-align: left; padding: 20px; align-items: center; }
+  .frog-mood-image { grid-row: span 2; width: 90px; height: 100px; margin: 0; }
+  #app .feature-card h3 { margin-bottom: 6px; }
+  .frog-question-note { margin-top: -8px; gap: 8px; }
+  .frog-question-note p { font-size: 12px; }
+  .frog-result-mascot { width: 90px; height: 90px; }
+}
+@media (min-width: 600px) and (max-width: 768px) { #app .hero { min-height: 780px; } }
+/* 四维娱乐结果：用双侧票数替代容易被误解为准确率的纯度圆环。 */
+.frog-type-code { font-size: 2rem; font-weight: 800; letter-spacing: .12em; color: #735700; }
+.frog-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+.frog-tags span { padding: .3rem .7rem; border-radius: 999px; background: #fff4c3; color: #735700; font-size: .85rem; }
+.frog-preferences { margin-bottom: 2rem; padding: 1.5rem; border: 1px solid #eadfb6; border-radius: 22px; background: #fffdf5; }
+.frog-preference-row { margin: 1.25rem 0; }
+.frog-preference-labels { display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; color: #4c492d; }
+.frog-preference-labels span:last-child { text-align: right; }
+.frog-preference-track { height: 12px; margin: .5rem 0; background: #e2cb7d; border-radius: 999px; overflow: hidden; }
+.frog-preference-track span { display: block; height: 100%; background: #766326; }
+.frog-preference-row small, .frog-result-notice { color: #6c6753; line-height: 1.7; }
+.frog-result-notice { font-size: .85rem; }
+@media (max-width: 600px) { .frog-tags { justify-content: center; } .frog-preferences { padding: 1rem; } .frog-preference-labels { font-size: .78rem; gap: .5rem; } }

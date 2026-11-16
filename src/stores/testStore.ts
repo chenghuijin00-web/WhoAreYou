@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { TestEngine } from '../core/testEngine';
 import { themeManager } from '../xbti/themeManager';
+import { selectPersonaMeme } from '../core/personaMeme';
 import type { TestResult, TestConfig } from '../protocol/types';
 
 export const useTestStore = defineStore('test', {
@@ -23,8 +24,7 @@ export const useTestStore = defineStore('test', {
     currentQuestion: (state) => {
       if (!state.isTestStarted || !state.currentThemeId) return null;
       const theme = themeManager.getTheme(state.currentThemeId);
-      if (!theme) return null;
-      return theme.questions[state.currentQuestionIndex];
+      return theme?.questions[state.currentQuestionIndex] || null;
     },
 
     progress: (state) => {
@@ -84,8 +84,8 @@ export const useTestStore = defineStore('test', {
       const currentQuestion = this.currentQuestion;
       if (!currentQuestion) return;
 
-      this.answers[currentQuestion.id] = optionId;
       this.testEngine.submitAnswer(currentQuestion.id, optionId);
+      this.answers[currentQuestion.id] = optionId;
 
       this.currentQuestionIndex++;
 
@@ -100,23 +100,26 @@ export const useTestStore = defineStore('test', {
     goToPreviousQuestion() {
       if (!this.isTestStarted || this.currentQuestionIndex <= 0) return;
 
-      // Remove the answer for current question when going back
-      const theme = themeManager.getTheme(this.currentThemeId);
-      if (theme && this.currentQuestionIndex < theme.questions.length) {
-        const currentQ = theme.questions[this.currentQuestionIndex];
-        if (currentQ && this.answers[currentQ.id]) {
-          delete this.answers[currentQ.id];
-        }
-      }
-
+      // 保留已答选项供返回时回显；重新提交时由引擎覆盖，不累加旧分数。
       this.currentQuestionIndex--;
     },
 
     completeTest() {
-      if (!this.isTestStarted) return;
+      if (!this.isTestStarted || (this.isTestCompleted && this.result)) return;
 
-      this.result = this.testEngine.getResult();
+      const result = this.testEngine.getResult();
+      const persona = this.currentTheme?.personalityTypes.find(type => type.id === result.personality_type);
+      // 只在完成时抽取一次，重入结果页、生成海报和分享不能改变同一次测试的短评。
+      this.result = persona?.memeVariants?.length ? { ...result, display_meme: selectPersonaMeme(persona) } : result;
       this.isTestCompleted = true;
+    },
+
+    /** 用户主动换短评，只改display_meme，不重新计分、不清空答案或改变角色。 */
+    refreshMeme() {
+      if (!this.isTestCompleted || !this.result) return;
+      const persona = this.currentTheme?.personalityTypes.find(type => type.id === this.result?.personality_type);
+      if (!persona?.memeVariants || persona.memeVariants.length < 2) return;
+      this.result.display_meme = selectPersonaMeme(persona, undefined, this.result.display_meme || persona.meme);
     },
 
     resetTest() {

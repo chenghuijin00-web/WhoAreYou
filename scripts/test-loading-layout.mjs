@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import { renderQuestion } from './test-question-layout.mjs';
+import { naifrogTest } from '../src/instance/naifrogTest.ts';
+
+const html = await renderQuestion(naifrogTest.questions.at(-1), naifrogTest.questions.length, { loading: true });
+assert.match(html, /class="distill-ads-title">广告位招租中/);
+assert.equal((html.match(/class="distill-ad-placeholder"/g) ?? []).length, 4);
+assert.equal((html.match(/class="distill-ad-copy">虚位等待\.\./g) ?? []).length, 4);
+for (let slot = 1; slot <= 4; slot++) assert.ok(html.includes(`待出租广告位 ${slot}`));
+assert.ok(html.indexOf('class="distill-ads"') < html.indexOf('class="loading-barrage"'));
+assert.ok(html.indexOf('class="loading-barrage"') < html.indexOf('class="distill-heading"'));
+assert.doesNotMatch(html, /flask-wrapper|liquid-chart|bubble-particle|steam-particle/);
+assert.match(html, /class="distill-heading">正在判定奶蛙种族/);
+assert.match(html, /class="loading-barrage"/);
+assert.doesNotMatch(html, /趣味弹幕 · 演示|barrage-heading/);
+assert.doesNotMatch(html, /class="distill-subtext"|class="step-indicators"/);
+assert.match(html, /role="status" aria-live="polite" aria-label="正在判定奶蛙种族"/);
+assert.doesNotMatch(html, /正在蒸馏你的人格|13 \/ 12/);
+assert.match(html, /class="progress-text">12 \/ 12/);
+const ads = html.slice(html.indexOf('<section class="distill-ads"'), html.indexOf('</section>'));
+assert.doesNotMatch(ads, /<a\b|<iframe\b|<script\b|onclick=|href=/);
+assert.doesNotMatch(html, /class="distill-result-btn"/);
+const ready = await renderQuestion(naifrogTest.questions.at(-1), 12, { loading: true, ready: true });
+assert.match(ready, /<button class="distill-result-btn">查看结果 →<\/button>/);
+assert.doesNotMatch(ready, /class="distill-heading"|barrage-heading/);
+assert.match(ready, /奶蛙种族判定完成，请查看结果/);
+console.log('PASS: 广告/汇聚弹幕/按钮顺序，烧瓶移除、5秒解锁及题号上限。');

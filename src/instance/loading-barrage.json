@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "entries": [
+    { "Name": "Ahui", "type_id": 1, "amount": 1 },
+    { "Name": "Alexander Grey", "type_id": 1, "amount": 99 },
+    { "Name": "杰森", "type_id": 1, "amount": 1 },
+    { "Name": "Sky", "type_id": 1, "amount": 1 },
+    { "Name": "猪之杨", "type_id": 1, "amount": 1 },
+    { "Name": "屠总", "type_id": 1, "amount": 1 },
+    { "Name": "过小狗", "type_id": 1, "amount": 1 },
+    { "Name": "小钰", "type_id": 1, "amount": 1 },
+    { "Name": "猪棋耀", "type_id": 2, "amount": 1 },
+    { "Name": "勾金", "type_id": 2, "amount": 1 },
+    { "Name": "阿天", "type_id": 2, "amount": 1 }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "./",
+  "name": "你是什么东西 | WhoAreYou",
+  "short_name": "WhoAreYou",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fffdf6",
+  "theme_color": "#fffdf6",
+  "icons": [
+    { "src": "./yellow-mascot.png", "sizes": "256x248", "type": "image/png" }
+  ]
+}

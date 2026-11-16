@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
-import Test from '../views/Test.vue';
-import Result from '../views/Result.vue';
 
 const routes = [
   {
@@ -10,19 +8,24 @@ const routes = [
     component: Home
   },
   {
+    path: '/team',
+    name: 'Team',
+    component: () => import('../views/Team.vue')
+  },
+  {
     path: '/test',
     name: 'Test',
-    component: Test
+    component: () => import('../views/Test.vue')
   },
   {
     path: '/result',
     name: 'Result',
-    component: Result
+    component: () => import('../views/Result.vue')
   }
 ];
 
 const router = createRouter({
-  history: createWebHistory('/PMD/'),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes
 });
 
