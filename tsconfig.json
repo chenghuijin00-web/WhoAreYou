@@ -16,6 +16,7 @@
   },
   "include": [
     "src/**/*.ts",
+    "functions/**/*.ts",
     "vite.config.js"
   ],
   "exclude": [

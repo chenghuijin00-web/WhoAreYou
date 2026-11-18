@@ -17,7 +17,9 @@ for (const base of ['/', '/PMD/']) {
       throw new Error(`Unexpected import ${name}`);
     } });
   assert.equal(module.exports.default.history.base, base);
-  assert.deepEqual(Array.from(module.exports.default.routes, route => route.path), ['/', '/team', '/test', '/result']);
+  const paths = ['/', '/team', '/test', '/result'];
+  if (base === '/') paths.push('/admin/usage');
+  assert.deepEqual(Array.from(module.exports.default.routes, route => route.path), paths);
   for (const imageUrl of ['/PMD/images/frog-curious.png', 'https://example.com/photo.png', undefined]) {
     const original = { id: 'test', name: '测试', questions: [], imageUrl };
     let registered;

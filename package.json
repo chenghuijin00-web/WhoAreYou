@@ -19,6 +19,7 @@
     "test:deployment-base": "node scripts/test-deployment-base.mjs",
     "test:share": "node --experimental-strip-types scripts/test-result-share.mjs",
     "test:team": "node scripts/test-team-layout.mjs",
+    "test:usage": "node --experimental-strip-types scripts/test-usage.mjs",
     "test:regression": "node --experimental-strip-types scripts/test-registration.mjs && node --experimental-strip-types scripts/test-persona-memes.mjs && node scripts/test-test-lifecycle.mjs && node --experimental-strip-types scripts/test-result-layout.mjs && node --experimental-strip-types scripts/test-question-layout.mjs && node --experimental-strip-types scripts/test-loading-layout.mjs && node --experimental-strip-types scripts/test-frog-relations.mjs && node scripts/test-poster-dialog.mjs"
   },
   "dependencies": {

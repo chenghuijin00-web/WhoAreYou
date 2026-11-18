@@ -37,13 +37,15 @@ assert.equal(selectPersonaMeme({ ...before[0], memeVariants: ['唯一一句'] },
 let currentTheme = test, code = test.personalityTypes[0].id, randomValue = 0;
 let calculations = 0, draws = 0;
 class Engine {
-  registerTest() {} startTest() {} resetTest() {}
+  registerTest() {} startTest() {} resetTest() {} submitAnswer() {}
   getResult() { calculations++; return { personality_type: code, match_percentage: 100, dimensions: {}, radar_chart: [], interpretation: '' }; }
 }
 const compiled = ts.transpileModule(fs.readFileSync(new URL('../src/stores/testStore.ts', import.meta.url), 'utf8'),
   { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
 const module = { exports: {} };
+const trackedUsage = [];
 const dependencies = { pinia, '../core/testEngine': { TestEngine: Engine },
+  '../core/usageTracking': { trackUsage: event => trackedUsage.push(event) },
   '../xbti/themeManager': { themeManager: { getTheme: () => currentTheme } },
   '../core/personaMeme': { selectPersonaMeme: (persona, _random, previous) => { draws++; return selectPersonaMeme(persona, () => randomValue, previous); } } };
 vm.runInNewContext(compiled, { module, exports: module.exports,
@@ -95,4 +97,23 @@ assert.equal('display_meme' in legacy.result, false, '旧主题结果字段保�
 legacy.refreshMeme();
 assert.equal('display_meme' in legacy.result, false, '没有文案池的旧主题不能刷新');
 legacy.$dispose();
+
+// 下次开始和最后一题提交分别计一次；重复提交、重开结果、半途退出不再计为完成。
+trackedUsage.length = 0;
+pinia.setActivePinia(pinia.createPinia());
+const measured = useStore();
+measured.startTest();
+assert.deepEqual(trackedUsage, []);
+measured.setTheme(test.id);
+measured.startTest();
+measured.submitAnswer(test.questions[0].options[0].id);
+measured.resetTest();
+assert.deepEqual(trackedUsage, ['test_start']);
+measured.startTest();
+for (const question of test.questions) measured.submitAnswer(question.options[0].id);
+measured.submitAnswer(test.questions.at(-1).options[0].id);
+measured.completeTest();
+measured.completeTest();
+assert.deepEqual(trackedUsage, ['test_start', 'test_start', 'test_finish']);
+measured.$dispose();
 console.log('PASS: 16型共享105句审核原文、1680个随机分支、单次锁定、重测重抽、分享一致及旧主题兼容。');

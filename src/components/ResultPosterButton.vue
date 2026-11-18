@@ -23,6 +23,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, ref } from 'vue';
 import { createResultPoster, type ResultPosterData } from '../core/resultPoster';
+import { trackUsage } from '../core/usageTracking';
 
 const props = defineProps<{ data: ResultPosterData }>();
 const dialog = ref<HTMLDialogElement | null>(null);
@@ -86,6 +87,7 @@ async function openPoster() {
     const preview = await readPreview(blob, taskController.signal);
     if (disposed || current !== generation) return;
     previewUrl.value = preview;
+    trackUsage('poster_generated');
   } catch (reason) {
     taskController.abort();
     if (current === generation && !disposed && !(reason instanceof Error && reason.name === 'AbortError')) {

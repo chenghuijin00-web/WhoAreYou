@@ -1,5 +1,6 @@
 import { onBeforeUnmount, ref } from 'vue';
 import { copyTextToClipboard, type ResultSharePayload } from '../core/resultShare.ts';
+import { trackUsage } from '../core/usageTracking.ts';
 
 /** 点击直接复制邀请，不调用手机系统分享；复制失败才展示可手动复制的入口。 */
 export function useResultShare() {
@@ -37,6 +38,7 @@ export function useResultShare() {
       const copied = await copyTextToClipboard(linkOnly ? shareUrl.value : shareCopyText.value);
       if (disposed) return;
       if (copied) {
+        trackUsage('share_copied');
         shareStatus.value = linkOnly ? '测试链接已复制，快发给朋友吧' : '邀请文案已复制，去粘贴给朋友吧';
         shareNotice.value = shareStatus.value;
         clearTimeout(noticeTimer);

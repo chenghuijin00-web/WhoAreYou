@@ -17,7 +17,8 @@ class PreviewReader {
   readAsDataURL() { this.result = 'data:image/png;base64,cG9zdGVy'; if (!delayRead) this.onload?.(); }
   abort() { this.onabort?.(); }
 }
-const dependencies = { vue, '../core/resultPoster': {
+const usage = [];
+const dependencies = { vue, '../core/usageTracking': { trackUsage: event => usage.push(event) }, '../core/resultPoster': {
   createResultPoster(data, signal) { return new Promise((resolve, reject) => jobs.push({ resolve, reject, signal, data })); }
 } };
 const module = { exports: {} };
@@ -76,6 +77,7 @@ app.unmount();
 assert.equal(jobs[4].signal.aborted, true);
 jobs[4].resolve(new Blob(['late'], { type: 'image/png' })); await leaving;
 assert.equal(created.length, 0, '长按原图无需创建下载用的Blob地址');
+assert.deepEqual(usage, ['poster_generated', 'poster_generated'], '只统计成功交付预览，不统计取消或失败');
 assert.deepEqual(revoked, created);
 assert.match(source, /-webkit-touch-callout: default/);
 assert.match(source, /长按海报保存原图/);

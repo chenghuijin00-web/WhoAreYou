@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { TestEngine } from '../core/testEngine';
 import { themeManager } from '../xbti/themeManager';
 import { selectPersonaMeme } from '../core/personaMeme';
+import { trackUsage } from '../core/usageTracking';
 import type { TestResult, TestConfig } from '../protocol/types';
 
 export const useTestStore = defineStore('test', {
@@ -76,6 +77,7 @@ export const useTestStore = defineStore('test', {
       this.result = null;
       this.isTestStarted = true;
       this.isTestCompleted = false;
+      trackUsage('test_start');
     },
 
     submitAnswer(optionId: string) {
@@ -90,7 +92,9 @@ export const useTestStore = defineStore('test', {
       this.currentQuestionIndex++;
 
       const theme = themeManager.getTheme(this.currentThemeId);
-      if (!theme || this.currentQuestionIndex >= theme.questions.length) {
+      if (!theme) return true;
+      if (this.currentQuestionIndex >= theme.questions.length) {
+        trackUsage('test_finish');
         return true;
       }
       

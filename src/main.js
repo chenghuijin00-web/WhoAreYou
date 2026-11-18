@@ -7,6 +7,7 @@ import './homeFullscreen.css'
 import App from './App.vue'
 import router from './router'
 import { themeManager } from './xbti/themeManager'
+import { trackUsage } from './core/usageTracking'
 
 // 当前仅发布奶蛙四维题库；旧主题配置保留但不注册。
 const themeModules = import.meta.glob(['./instance/naifrogTest.ts'], { eager: true })
@@ -27,7 +28,14 @@ for (const path in themeModules) {
 
 const app = createApp(App)
 
+// 每次打开站点至多一次；内部切页、后台入口和未匹配地址不记访问。
+let visitCounted = false
+router.afterEach((to, _from, failure) => {
+  if (visitCounted || failure || !to.matched.length || to.name === 'UsageAdmin') return
+  visitCounted = true
+  trackUsage('visit')
+})
+
 app.use(createPinia())
 app.use(router)
-
 app.mount('#app')

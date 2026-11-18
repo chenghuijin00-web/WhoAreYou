@@ -21,7 +21,12 @@ const routes = [
     path: '/result',
     name: 'Result',
     component: () => import('../views/Result.vue')
-  }
+  },
+  ...(import.meta.env.BASE_URL === '/' ? [{
+    path: '/admin/usage',
+    name: 'UsageAdmin',
+    component: () => import('../views/UsageAdmin.vue')
+  }] : [])
 ];
 
 const router = createRouter({

@@ -28,6 +28,7 @@
    npm.cmd run test:regression
    npm.cmd run test:team
    npm.cmd run test:share
+   npm.cmd run test:usage
    npm.cmd run test:deployment-base
    npm.cmd run build:cloudflare
    npm.cmd run test:loading:cloudflare
@@ -44,6 +45,7 @@
    ```
 
    不使用本项目`npm run deploy`，它是旧GitHub Pages发布流程，不是Cloudflare。CLI未缓存时可以使用正常的`npx wrangler`，不能跳过账户核验。
+   若本次发布要启用使用统计，先确认专用 D1 已绑定、迁移已完成、管理员令牌已配置，详见 `docs/usage-analytics.md`。不要把凭据打印到终端或提交到 Git。
 7. 核对部署成功记录；读取正式入口及变更资源，比较HTTP状态和本地构建哈希。检查结果不能冒充真机测试。
 8. 简短报告提交号、GitHub推送结果、Cloudflare正式链接、实际验证及未验证项。若推送成功但部署失败，明确区分，不自动回滚GitHub或声称两者均完成。
 
